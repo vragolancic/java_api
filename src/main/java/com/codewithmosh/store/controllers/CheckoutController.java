@@ -2,6 +2,7 @@ package com.codewithmosh.store.controllers;
 
 import com.codewithmosh.store.dtos.CheckoutRequest;
 import com.codewithmosh.store.dtos.CheckoutResponse;
+import com.codewithmosh.store.dtos.ErrorDto;
 import com.codewithmosh.store.entities.Order;
 import com.codewithmosh.store.entities.OrderItem;
 import com.codewithmosh.store.entities.OrderStatus;
@@ -37,30 +38,17 @@ public class CheckoutController {
         var cart = cartRepository.getCartWithItems(request.getCartId()).orElse(null);
         if (cart == null) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart not found")
+                    new ErrorDto("Cart not found")
             );
         }
 
         if (cart.getItems().isEmpty()) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart is empty")
+                    new ErrorDto("Cart is empty")
             );
         }
 
-        var order = new Order();
-        order.setTotalPrice(cart.getTotalPrice());
-        order.setStatus(OrderStatus.PENDING);
-        order.setCustomer(authService.getCurentUser());
-
-        cart.getItems().forEach(item -> {
-            var orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(item.getProduct());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setTotalPrice(item.getTotalPrice());
-            orderItem.setUnitPrice(item.getProduct().getPrice());
-            order.getItems().add(orderItem);
-        });
+        var order = Order.formCart(cart, authService.getCurentUser());
 
         orderRepository.save(order);
 

@@ -1,9 +1,6 @@
 package com.codewithmosh.store.controllers;
 
-import com.codewithmosh.store.dtos.AddItemToCartRequest;
-import com.codewithmosh.store.dtos.CartDto;
-import com.codewithmosh.store.dtos.CartItemDto;
-import com.codewithmosh.store.dtos.UpdateCartItemRequest;
+import com.codewithmosh.store.dtos.*;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
 import com.codewithmosh.store.exceptions.ProductNotFoundException;
 import com.codewithmosh.store.services.CartService;
@@ -78,12 +75,16 @@ public class CartController {
     }
 
     @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleCartNotFound() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Cart not found"));
+    public ResponseEntity<ErrorDto> handleCartNotFound() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ErrorDto("Cart not found")
+        );
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleProductNotFound() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Product not found in the cart"));
+    public ResponseEntity<ErrorDto> handleProductNotFound() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ErrorDto("Product not found in the cart")
+        );
     }
 }
